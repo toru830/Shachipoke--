@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シャチポケ２ - テスト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .error {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>シャチポケ２ - デバッグテスト</h1>
+    
+    <div class="test-section">
+        <h2>1. ファイル読み込みテスト</h2>
+        <div id="file-test">テスト中...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. キャラクターデータテスト</h2>
+        <div id="character-test">テスト中...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. ゲーム状態テスト</h2>
+        <div id="game-state-test">テスト中...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. UIテスト</h2>
+        <div id="ui-test">テスト中...</div>
+        <button onclick="testUI()">UIテスト実行</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. コンソールログ</h2>
+        <div id="console-log">ログを確認してください...</div>
+    </div>
+
+    <script src="game-data.js"></script>
+    <script src="game-state.js"></script>
+    <script src="game-ui.js"></script>
+    <script>
+        console.log('=== シャチポケ２ デバッグテスト開始 ===');
+        
+        // 1. ファイル読み込みテスト
+        function testFileLoading() {
+            const fileTest = document.getElementById('file-test');
+            fileTest.innerHTML = '<div class="success">✅ すべてのファイルが読み込まれました</div>';
+        }
+        
+        // 2. キャラクターデータテスト
+        function testCharacterData() {
+            const characterTest = document.getElementById('character-test');
+            try {
+                if (typeof CHARACTERS !== 'undefined') {
+                    characterTest.innerHTML = `<div class="success">✅ キャラクターデータ読み込み成功 (${CHARACTERS.length}体)</div>`;
+                    console.log('Characters loaded:', CHARACTERS.length);
+                } else {
+                    characterTest.innerHTML = '<div class="error">❌ CHARACTERS が定義されていません</div>';
+                }
+            } catch (error) {
+                characterTest.innerHTML = `<div class="error">❌ キャラクターデータエラー: ${error.message}</div>`;
+            }
+        }
+        
+        // 3. ゲーム状態テスト
+        function testGameState() {
+            const gameStateTest = document.getElementById('game-state-test');
+            try {
+                if (typeof GameState !== 'undefined') {
+                    const gameState = new GameState();
+                    gameStateTest.innerHTML = '<div class="success">✅ GameState クラスが正常に動作しています</div>';
+                    console.log('GameState created successfully');
+                } else {
+                    gameStateTest.innerHTML = '<div class="error">❌ GameState クラスが定義されていません</div>';
+                }
+            } catch (error) {
+                gameStateTest.innerHTML = `<div class="error">❌ GameState エラー: ${error.message}</div>`;
+            }
+        }
+        
+        // 4. UIテスト
+        function testUI() {
+            const uiTest = document.getElementById('ui-test');
+            try {
+                if (typeof GameUI !== 'undefined') {
+                    uiTest.innerHTML = '<div class="success">✅ GameUI クラスが正常に動作しています</div>';
+                    console.log('GameUI class available');
+                } else {
+                    uiTest.innerHTML = '<div class="error">❌ GameUI クラスが定義されていません</div>';
+                }
+            } catch (error) {
+                uiTest.innerHTML = `<div class="error">❌ GameUI エラー: ${error.message}</div>`;
+            }
+        }
+        
+        // ページ読み込み時にテスト実行
+        window.addEventListener('load', () => {
+            console.log('Page loaded, running tests...');
+            testFileLoading();
+            testCharacterData();
+            testGameState();
+            testUI();
+        });
+        
+        // エラーハンドリング
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e.error);
+            const consoleLog = document.getElementById('console-log');
+            consoleLog.innerHTML += `<div class="error">❌ エラー: ${e.error.message}</div>`;
+        });
+    </script>
+</body>
+</html>

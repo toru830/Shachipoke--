@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シャチポケ２ - シンプル版</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .character-card {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .character-card:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-5px);
+        }
+        .character-card.selected {
+            background: rgba(0,123,255,0.5);
+        }
+        .character-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .character-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐋 シャチポケ２ 🐋</h1>
+        
+        <div id="loading-screen">
+            <h2>読み込み中...</h2>
+            <div id="loading-status">ゲームを初期化しています...</div>
+        </div>
+        
+        <div id="character-selection" class="hidden">
+            <h2>キャラクター選択</h2>
+            <p>最初のキャラクターを選んでください</p>
+            <div class="character-grid" id="character-grid">
+                <!-- キャラクターがここに表示されます -->
+            </div>
+            <button id="confirm-btn" disabled>選択確定</button>
+        </div>
+        
+        <div id="main-game" class="hidden">
+            <h2>メインゲーム</h2>
+            <div class="status">
+                <p>選択されたキャラクター: <span id="selected-character">-</span></p>
+                <p>シャチ: <span id="currency">0</span></p>
+            </div>
+            <button onclick="showCharacterSelection()">キャラクター選択に戻る</button>
+        </div>
+        
+        <div id="debug-info">
+            <h3>デバッグ情報</h3>
+            <div id="debug-log"></div>
+        </div>
+    </div>
+
+    <script>
+        // デバッグ用ログ関数
+        function debugLog(message) {
+            console.log(message);
+            const debugLog = document.getElementById('debug-log');
+            debugLog.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+
+        // キャラクターデータ（簡略版）
+        const characters = [
+            { id: 'ikisui', name: '生粋の社畜', icon: '👨‍💼' },
+            { id: 'genkai', name: '限界突破社畜', icon: '👩‍💼' },
+            { id: 'muhai', name: '無敗の職人社畜', icon: '👨‍💻' },
+            { id: 'kokou', name: '孤高の成果主義社畜', icon: '👩‍💻' },
+            { id: 'kokoro', name: '心優しき社畜', icon: '👨‍🔧' },
+            { id: 'seijitsu', name: '誠実な観察社員', icon: '👩‍🔧' },
+            { id: 'kyousou', name: '共創リーダー社員', icon: '👨‍🎨' },
+            { id: 'mypace', name: 'マイペース社員', icon: '👩‍🎨' },
+            { id: 'yurufuwa', name: 'ゆるふわ社畜', icon: '👨‍💼' },
+            { id: 'kakure', name: '隠れ疲労社畜', icon: '👩‍💼' },
+            { id: 'ohitoyoshi', name: 'お人好し社員', icon: '👨‍💻' },
+            { id: 'genjitsu', name: '現実派社員', icon: '👩‍💻' },
+            { id: 'katei', name: '家庭が大事社員', icon: '👨‍🔧' },
+            { id: 'balancer', name: 'バランサー社員', icon: '👩‍🔧' },
+            { id: 'seika', name: '成果最適化社畜', icon: '👨‍🎨' },
+            { id: 'jiyujin', name: '自由人', icon: '👩‍🎨' }
+        ];
+
+        let selectedCharacter = null;
+
+        // 初期化
+        function init() {
+            debugLog('ページ読み込み開始');
+            
+            try {
+                // ローディング画面を表示
+                showScreen('loading');
+                
+                // キャラクターグリッドを作成
+                createCharacterGrid();
+                
+                // イベントリスナーを設定
+                setupEventListeners();
+                
+                // 2秒後にキャラクター選択画面を表示
+                setTimeout(() => {
+                    debugLog('ローディング完了、キャラクター選択画面を表示');
+                    showScreen('character-selection');
+                }, 2000);
+                
+            } catch (error) {
+                debugLog('初期化エラー: ' + error.message);
+                document.getElementById('loading-status').textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // キャラクターグリッドを作成
+        function createCharacterGrid() {
+            const grid = document.getElementById('character-grid');
+            grid.innerHTML = '';
+            
+            characters.forEach(character => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.dataset.characterId = character.id;
+                card.innerHTML = `
+                    <div class="character-icon">${character.icon}</div>
+                    <div class="character-name">${character.name}</div>
+                `;
+                
+                card.addEventListener('click', () => selectCharacter(character.id));
+                grid.appendChild(card);
+            });
+            
+            debugLog('キャラクターグリッド作成完了: ' + characters.length + '体');
+        }
+
+        // イベントリスナーを設定
+        function setupEventListeners() {
+            document.getElementById('confirm-btn').addEventListener('click', confirmSelection);
+            debugLog('イベントリスナー設定完了');
+        }
+
+        // キャラクター選択
+        function selectCharacter(characterId) {
+            debugLog('キャラクター選択: ' + characterId);
+            
+            // 前の選択を解除
+            document.querySelectorAll('.character-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // 新しい選択を追加
+            const selectedCard = document.querySelector(`[data-character-id="${characterId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+                selectedCharacter = characterId;
+                document.getElementById('confirm-btn').disabled = false;
+                debugLog('キャラクター選択完了: ' + characterId);
+            }
+        }
+
+        // 選択確定
+        function confirmSelection() {
+            if (!selectedCharacter) {
+                debugLog('エラー: キャラクターが選択されていません');
+                return;
+            }
+            
+            debugLog('ゲーム開始: ' + selectedCharacter);
+            
+            // 選択されたキャラクター名を表示
+            const character = characters.find(c => c.id === selectedCharacter);
+            if (character) {
+                document.getElementById('selected-character').textContent = character.name;
+                debugLog('キャラクター情報更新: ' + character.name);
+            }
+            
+            // メインゲーム画面を表示
+            debugLog('メインゲーム画面に切り替え中...');
+            showScreen('main-game');
+        }
+
+        // 画面表示切り替え
+        function showScreen(screenName) {
+            debugLog('画面切り替え: ' + screenName);
+            
+            // すべての画面を非表示
+            const allScreens = [
+                'loading-screen',
+                'character-selection', 
+                'main-game'
+            ];
+            
+            allScreens.forEach(screenId => {
+                const screen = document.getElementById(screenId);
+                if (screen) {
+                    screen.classList.add('hidden');
+                }
+            });
+            
+            // 指定された画面を表示
+            const targetScreen = document.getElementById(screenName);
+            if (targetScreen) {
+                targetScreen.classList.remove('hidden');
+                debugLog('画面表示完了: ' + screenName);
+            } else {
+                debugLog('エラー: 画面が見つかりません: ' + screenName);
+                // フォールバック: キャラクター選択画面を表示
+                const fallbackScreen = document.getElementById('character-selection');
+                if (fallbackScreen) {
+                    fallbackScreen.classList.remove('hidden');
+                    debugLog('フォールバック: キャラクター選択画面を表示');
+                }
+            }
+        }
+
+        // キャラクター選択に戻る
+        function showCharacterSelection() {
+            showScreen('character-selection');
+        }
+
+        // ページ読み込み時に初期化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // エラーハンドリング
+        window.addEventListener('error', function(e) {
+            debugLog('JavaScriptエラー: ' + e.error.message);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>認証処理中 - シャチポケ２</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .callback-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4285f4;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .redirect-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .redirect-btn:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <div id="loading">
+            <div class="spinner"></div>
+            <h1>認証処理中...</h1>
+            <p>Googleアカウントの認証を処理しています</p>
+        </div>
+
+        <div id="success" style="display: none;">
+            <h1 class="success">✅ 認証成功！</h1>
+            <p>ログインが完了しました</p>
+            <p>ゲーム画面に移動します...</p>
+        </div>
+
+        <div id="error" style="display: none;">
+            <h1 class="error">❌ 認証エラー</h1>
+            <p id="error-message"></p>
+            <button class="redirect-btn" onclick="goToLogin()">ログイン画面に戻る</button>
+        </div>
+    </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Supabase設定
+        const SUPABASE_URL = 'https://uvrzanksalwjnxoreijl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cnphbmtzYWx3am54b3JlaWpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0Mjg2MzcsImV4cCI6MjA3NzAwNDYzN30.ShwFpsm64P8IwWlLFM4BcbbWf9Ar8tLXUev3ZgAjQDM';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function handleAuthCallback() {
+            try {
+                // URLから認証コードを取得
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    throw error;
+                }
+
+                if (data.session) {
+                    console.log('認証成功:', data.session.user);
+                    
+                    // プロフィール作成
+                    await createUserProfile(data.session.user);
+                    
+                    // 成功画面表示
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('success').style.display = 'block';
+                    
+                    // 3秒後にゲーム画面に移動
+                    setTimeout(() => {
+                        window.location.href = 'working-game.html';
+                    }, 3000);
+                } else {
+                    throw new Error('セッションが見つかりません');
+                }
+            } catch (error) {
+                console.error('認証コールバックエラー:', error);
+                
+                // エラー画面表示
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error-message').textContent = error.message;
+            }
+        }
+
+        // ユーザープロフィール作成
+        async function createUserProfile(user) {
+            try {
+                const { error } = await supabase
+                    .from('profiles')
+                    .upsert({
+                        id: user.id,
+                        email: user.email,
+                        display_name: user.user_metadata?.full_name || user.email,
+                        avatar_url: user.user_metadata?.avatar_url || null
+                    });
+
+                if (error) {
+                    console.error('プロフィール作成エラー:', error);
+                    // エラーでも続行（既に存在する可能性）
+                } else {
+                    console.log('プロフィール作成成功');
+                }
+            } catch (error) {
+                console.error('プロフィール作成エラー:', error);
+            }
+        }
+
+        // ログイン画面に戻る
+        function goToLogin() {
+            window.location.href = 'supabase-auth.html';
+        }
+
+        // ページ読み込み時に認証処理実行
+        document.addEventListener('DOMContentLoaded', handleAuthCallback);
+    </script>
+</body>
+</html>

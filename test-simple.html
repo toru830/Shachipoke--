@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シャチポケ２ - テスト版</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .character-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .character-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+        }
+        
+        .character-card.selected {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+        
+        .character-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 10px;
+            background: #ddd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .character-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>シャチポケ２</h1>
+        
+        <div class="status" id="status">
+            キャラクターを選択してください
+        </div>
+        
+        <div class="character-grid" id="character-grid">
+            <!-- キャラクターがここに生成されます -->
+        </div>
+        
+        <button class="btn" id="confirm-btn" disabled>選択確定</button>
+    </div>
+
+    <script>
+        // キャラクターデータ
+        const CHARACTERS = [
+            { id: 'ikisui', name: '生粋の社畜', icon: '001.png' },
+            { id: 'genkai', name: '限界突破社畜', icon: '002.png' },
+            { id: 'muhai', name: '無敗の職人社畜', icon: '003.png' },
+            { id: 'kokou', name: '孤高の成果主義社畜', icon: '004.png' },
+            { id: 'kokoro', name: '心優しき社畜', icon: '005.png' },
+            { id: 'kakusei', name: '覚醒社畜', icon: '006.png' },
+            { id: 'shinjin', name: '新人社畜', icon: '007.png' },
+            { id: 'senpai', name: '先輩社畜', icon: '008.png' },
+            { id: 'bucho', name: '部長社畜', icon: '009.png' },
+            { id: 'kacho', name: '課長社畜', icon: '010.png' },
+            { id: 'shain', name: '社員社畜', icon: '011.png' },
+            { id: 'part', name: 'パート社畜', icon: '012.png' },
+            { id: 'freeter', name: 'フリーター社畜', icon: '013.png' },
+            { id: 'balancer', name: 'バランサー社員', icon: '014.png' },
+            { id: 'seika', name: '成果最適化社畜', icon: '015.png' },
+            { id: 'jiyujin', name: '自由人', icon: '016.png' }
+        ];
+        
+        let selectedCharacterId = null;
+        
+        // キャラクターグリッド作成
+        function createCharacterGrid() {
+            const grid = document.getElementById('character-grid');
+            grid.innerHTML = '';
+            
+            CHARACTERS.forEach(character => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.dataset.characterId = character.id;
+                card.innerHTML = `
+                    <div class="character-icon">${character.name.charAt(0)}</div>
+                    <div class="character-name">${character.name}</div>
+                `;
+                
+                card.addEventListener('click', () => selectCharacter(character.id));
+                grid.appendChild(card);
+            });
+        }
+        
+        // キャラクター選択
+        function selectCharacter(characterId) {
+            selectedCharacterId = characterId;
+            
+            // 前の選択を解除
+            document.querySelectorAll('.character-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // 新しい選択を追加
+            const selectedCard = document.querySelector(`[data-character-id="${characterId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // 確定ボタンを有効化
+            document.getElementById('confirm-btn').disabled = false;
+            
+            // ステータス更新
+            const character = CHARACTERS.find(c => c.id === characterId);
+            document.getElementById('status').textContent = `選択中: ${character.name}`;
+        }
+        
+        // 確定ボタン
+        function confirmSelection() {
+            if (!selectedCharacterId) return;
+            
+            const character = CHARACTERS.find(c => c.id === selectedCharacterId);
+            document.getElementById('status').textContent = `ゲーム開始: ${character.name}`;
+            document.getElementById('confirm-btn').textContent = 'ゲーム開始完了！';
+            document.getElementById('confirm-btn').disabled = true;
+            
+            // 3秒後にメッセージ
+            setTimeout(() => {
+                alert(`${character.name}でゲームを開始しました！\n\n完全版は working-game.html をご利用ください。`);
+            }, 1000);
+        }
+        
+        // 初期化
+        function init() {
+            console.log('テスト版初期化開始');
+            createCharacterGrid();
+            document.getElementById('confirm-btn').addEventListener('click', confirmSelection);
+            console.log('テスト版初期化完了');
+        }
+        
+        // ページ読み込み時に初期化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>セーブデータ確認</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .data-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>シャチポケ２ セーブデータ確認</h1>
+        
+        <div class="info">
+            <h3>📍 保存場所について</h3>
+            <p><strong>LocalStorage</strong>に保存されています（ブラウザの内部データベース）</p>
+            <p><strong>キー名</strong>: <code>shachipoke2_save</code></p>
+            <p><strong>形式</strong>: JSON文字列</p>
+        </div>
+
+        <h3>🔍 現在のセーブデータ</h3>
+        <button onclick="loadSaveData()">データを読み込み</button>
+        <button onclick="clearSaveData()">データを削除</button>
+        <button onclick="exportSaveData()">データをエクスポート</button>
+        
+        <div id="data-display" class="data-display" style="display: none;">
+            データを読み込んでください
+        </div>
+
+        <h3>📊 LocalStorage使用状況</h3>
+        <div id="storage-info" class="data-display">
+            読み込み中...
+        </div>
+
+        <h3>💡 データの特徴</h3>
+        <div class="info">
+            <ul>
+                <li><strong>永続性</strong>: ブラウザを閉じても残る</li>
+                <li><strong>サイト固有</strong>: このサイトでのみ有効</li>
+                <li><strong>容量制限</strong>: 通常5-10MB</li>
+                <li><strong>プライベート</strong>: 他のサイトからはアクセス不可</li>
+                <li><strong>手動削除可能</strong>: ブラウザ設定から削除可能</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function loadSaveData() {
+            const saveData = localStorage.getItem('shachipoke2_save');
+            const display = document.getElementById('data-display');
+            
+            if (saveData) {
+                try {
+                    const parsed = JSON.parse(saveData);
+                    display.textContent = JSON.stringify(parsed, null, 2);
+                    display.style.display = 'block';
+                } catch (error) {
+                    display.textContent = 'データの解析に失敗しました: ' + error.message;
+                    display.style.display = 'block';
+                }
+            } else {
+                display.textContent = 'セーブデータが見つかりません';
+                display.style.display = 'block';
+            }
+        }
+
+        function clearSaveData() {
+            if (confirm('セーブデータを削除しますか？')) {
+                localStorage.removeItem('shachipoke2_save');
+                document.getElementById('data-display').style.display = 'none';
+                alert('セーブデータを削除しました');
+                updateStorageInfo();
+            }
+        }
+
+        function exportSaveData() {
+            const saveData = localStorage.getItem('shachipoke2_save');
+            if (saveData) {
+                const blob = new Blob([saveData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'shachipoke2_save.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            } else {
+                alert('セーブデータが見つかりません');
+            }
+        }
+
+        function updateStorageInfo() {
+            const info = document.getElementById('storage-info');
+            let totalSize = 0;
+            let itemCount = 0;
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                totalSize += key.length + value.length;
+                itemCount++;
+            }
+            
+            info.textContent = `アイテム数: ${itemCount}\n使用容量: ${(totalSize / 1024).toFixed(2)} KB\n最大容量: 約5-10MB (ブラウザ依存)`;
+        }
+
+        // ページ読み込み時に情報を更新
+        updateStorageInfo();
+    </script>
+</body>
+</html>

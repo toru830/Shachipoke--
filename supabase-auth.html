@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シャチポケ２ - Supabase版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .auth-card h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .auth-card p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .google-signin-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .google-signin-btn:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4285f4;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .user-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .user-info p {
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .start-game-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .start-game-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>🐋 シャチポケ２</h1>
+            <p>Googleアカウントでログインして、ゲームを開始しましょう！</p>
+            
+            <button id="google-signin-btn" class="google-signin-btn">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Googleでログイン
+            </button>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>ログイン中...</p>
+            </div>
+
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+
+            <div id="user-info" class="user-info">
+                <h3>ログイン成功！</h3>
+                <p id="user-name"></p>
+                <p id="user-email"></p>
+                <button id="start-game-btn" class="start-game-btn">ゲームを開始</button>
+                <button id="logout-btn" class="logout-btn">ログアウト</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Supabase設定
+        const SUPABASE_URL = 'https://uvrzanksalwjnxoreijl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2cnphbmtzYWx3am54b3JlaWpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0Mjg2MzcsImV4cCI6MjA3NzAwNDYzN30.ShwFpsm64P8IwWlLFM4BcbbWf9Ar8tLXUev3ZgAjQDM';
+        
+        // Supabaseクライアント初期化
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // DOM要素
+        const googleSigninBtn = document.getElementById('google-signin-btn');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const userInfo = document.getElementById('user-info');
+        const userName = document.getElementById('user-name');
+        const userEmail = document.getElementById('user-email');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Google認証
+        async function signInWithGoogle() {
+            try {
+                loading.style.display = 'block';
+                errorMessage.style.display = 'none';
+                
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/auth-callback.html'
+                    }
+                });
+
+                if (error) throw error;
+                
+                console.log('認証開始:', data);
+            } catch (error) {
+                console.error('認証エラー:', error);
+                showError('ログインに失敗しました: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // 認証状態確認
+        async function checkAuthState() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session) {
+                    console.log('既存セッション:', session);
+                    showUserInfo(session.user);
+                } else {
+                    console.log('セッションなし');
+                }
+            } catch (error) {
+                console.error('セッション確認エラー:', error);
+            }
+        }
+
+        // ユーザー情報表示
+        function showUserInfo(user) {
+            userName.textContent = `名前: ${user.user_metadata?.full_name || '不明'}`;
+            userEmail.textContent = `メール: ${user.email}`;
+            userInfo.style.display = 'block';
+            successMessage.textContent = 'ログインに成功しました！';
+            successMessage.style.display = 'block';
+        }
+
+        // エラー表示
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // ゲーム開始
+        function startGame() {
+            // ここで実際のゲーム画面に遷移
+            window.location.href = 'working-game.html';
+        }
+
+        // ログアウト
+        async function logout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                
+                userInfo.style.display = 'none';
+                successMessage.style.display = 'none';
+                console.log('ログアウト成功');
+            } catch (error) {
+                console.error('ログアウトエラー:', error);
+                showError('ログアウトに失敗しました');
+            }
+        }
+
+        // イベントリスナー
+        googleSigninBtn.addEventListener('click', signInWithGoogle);
+        startGameBtn.addEventListener('click', startGame);
+        logoutBtn.addEventListener('click', logout);
+
+        // 認証状態の監視
+        supabase.auth.onAuthStateChange((event, session) => {
+            console.log('認証状態変更:', event, session);
+            
+            if (event === 'SIGNED_IN' && session) {
+                showUserInfo(session.user);
+            } else if (event === 'SIGNED_OUT') {
+                userInfo.style.display = 'none';
+                successMessage.style.display = 'none';
+            }
+        });
+
+        // ページ読み込み時に認証状態確認
+        document.addEventListener('DOMContentLoaded', checkAuthState);
+    </script>
+</body>
+</html>
