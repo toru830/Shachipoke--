@@ -1,0 +1,8 @@
+# Cloudflare Pages リダイレクト設定
+
+# ルートパスをworking-game.htmlにリダイレクト
+/ /working-game.html 200
+
+# 404エラーページ
+/404.html 404
+

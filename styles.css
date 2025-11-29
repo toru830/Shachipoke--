@@ -271,12 +271,56 @@ body {
 }
 
 .level-info {
-    background: #e9ecef;
-    padding: 5px 15px;
-    border-radius: 20px;
-    display: inline-block;
+    display: inline-flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
     font-size: 0.9rem;
-    color: #6c757d;
+    color: inherit;
+}
+
+.rank-badge button {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    background: transparent;
+    border: 1.5px solid rgba(0, 0, 0, 0.25);
+    color: #2b5876;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.rank-label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.rank-value {
+    font-size: 1rem;
+}
+
+.level-badge {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    background: transparent;
+    color: #1f2a37;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid rgba(0, 0, 0, 0.25);
+    font-weight: 700;
+}
+
+.level-label {
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+}
+
+.level-value {
+    font-size: 1rem;
 }
 
 .stats-display {

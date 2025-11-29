@@ -1,0 +1,21 @@
+# robots.txt for シャチポケ２
+
+User-agent: *
+Allow: /
+
+# 禁止するパス
+Disallow: /auth-callback.html
+Disallow: /supabase-auth.html
+Disallow: /save-data-checker.html
+Disallow: /test.html
+Disallow: /test-simple.html
+Disallow: /minimal.html
+Disallow: /simple.html
+Disallow: /*.sql$
+
+# Sitemapの場所
+Sitemap: https://your-domain.com/sitemap.xml
+
+# クロールの頻度制御
+Crawl-delay: 1
+

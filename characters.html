@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>キャラクター紹介 - シャチポケ２</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9ebb 0%, #ffc3d8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover {
+            background: #e0e0e0;
+        }
+
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .character-card {
+            background: #FEFEF8;
+            border: 2px solid #FFB74D;
+            border-radius: 15px;
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: left;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .character-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+
+        .character-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .character-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #8B6914;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .character-quote {
+            background: #FFE4E1;
+            border-left: 4px solid #FF6B6B;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 0.95rem;
+            color: #5a4a3a;
+            line-height: 1.6;
+            position: relative;
+            text-align: center;
+        }
+
+        .character-quote::before {
+            content: '"';
+            font-size: 2rem;
+            color: #FF6B6B;
+            position: absolute;
+            left: 5px;
+            top: 5px;
+            font-family: Georgia, serif;
+            opacity: 0.5;
+        }
+
+        .character-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        .character-features-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0 10px 0;
+        }
+
+        .character-features {
+            background: #F5F5F5;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .movie-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .movie-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .movie-button:active {
+            transform: translateY(0);
+        }
+
+        /* 動画再生ポップアップ */
+        .movie-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .movie-popup.active {
+            display: flex;
+        }
+
+        .movie-popup-content {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .movie-popup video {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .movie-popup-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .movie-popup-close:hover {
+            background: white;
+            color: #1a1a1a;
+        }
+
+        @media (max-width: 768px) {
+            .characters-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .movie-popup-content {
+                width: 95%;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="working-game.html" class="back-link">← 診断に戻る</a>
+        
+        <h1>社畜タイプ一覧</h1>
+        <p class="subtitle">16種類の社畜キャラクターをチェックしよう！</p>
+
+        <div class="characters-grid" id="characters-grid">
+            <!-- キャラクターがここに生成されます -->
+        </div>
+    </div>
+
+    <!-- 動画再生ポップアップ -->
+    <div class="movie-popup" id="movie-popup">
+        <div class="movie-popup-content">
+            <button class="movie-popup-close" id="movie-popup-close">×</button>
+            <video id="movie-player" controls></video>
+        </div>
+    </div>
+
+    <script>
+        // キャラクター動画マッピング（通常のキャラクター紹介動画）
+        const CHARACTER_MOVIES = {
+            'ikisui': '20_movie/30_キャラクター紹介/01キャラ紹介01.mp4',
+            'genkai': '20_movie/30_キャラクター紹介/02キャラ紹介02.mp4',
+            'muhai': '20_movie/30_キャラクター紹介/03キャラ紹介01.mp4',
+            'kokou': '20_movie/30_キャラクター紹介/04キャラ紹介02.mp4',
+            'kokoro': '20_movie/30_キャラクター紹介/05キャラ紹介01.mp4',
+            'seijitsu': '20_movie/30_キャラクター紹介/06キャラ紹介01.mp4',
+            'kyousou': '20_movie/30_キャラクター紹介/07キャラ紹介01.mp4',
+            'mypace': '20_movie/30_キャラクター紹介/08キャラ紹介01.mp4',
+            'yurufuwa': '20_movie/30_キャラクター紹介/09キャラ紹介02.mp4',
+            'kakure': '20_movie/30_キャラクター紹介/10キャラ紹介01.mp4',
+            'ohitoyoshi': '20_movie/30_キャラクター紹介/11キャラ紹介01.mp4',
+            'genjitsu': '20_movie/30_キャラクター紹介/012キャラ紹介01.mp4',
+            'katei': '20_movie/30_キャラクター紹介/13キャラ紹介01.mp4',
+            'balancer': '20_movie/30_キャラクター紹介/14キャラ紹介01.mp4',
+            'seika': '20_movie/30_キャラクター紹介/15キャラ紹介01.mp4',
+            'jiyujin': '20_movie/30_キャラクター紹介/16キャラ紹介01.mp4'
+        };
+
+        // 特別動画マッピング（初期キャラ・ゲットしたキャラ用）
+        const SPECIAL_MOVIES = {
+            'genkai': '20_movie/31_キャラ登場用/02キャラ紹介01.mp4',
+            'kokou': '20_movie/31_キャラ登場用/04キャラ紹介01.mp4',
+            'yurufuwa': '20_movie/31_キャラ登場用/09キャラ紹介01.mp4',
+            'kakure': '20_movie/31_キャラ登場用/10キャラ紹介02.mp4'
+        };
+
+        // キャラクターデータ（画像の情報を踏襲）
+        const CHARACTERS = [
+            { 
+                id: 'ikisui', 
+                name: '生粋の社畜', 
+                icon: '001.png', 
+                quote: '会社ばんざーい!命を捧げよ!',
+                description: '全軸が非常に高い究極の献身者。仕事と一体化し、成果を使命とする存在。',
+                features: '完璧主義で責任感が強く、常に100%の力を発揮。休息を取ることを忘れがち。'
+            },
+            { 
+                id: 'genkai', 
+                name: '限界突破社畜', 
+                icon: '002.png',
+                quote: '必殺!連続徹夜!朝日がこたえるぜ、ふっ',
+                description: '限界を突破した超人。常に最大限の努力を続け、周囲を圧倒する。',
+                features: '超人的な能力を持つが、プライベートとのバランスが課題。'
+            },
+            { 
+                id: 'muhai', 
+                name: '無敗の職人社畜', 
+                icon: '003.png',
+                quote: '仕事第一です。',
+                description: '職人としての技術力が極めて高い。どんな問題も技術で解決する。',
+                features: '知識とストレス耐性に優れ、困難な技術的課題を突破できる。'
+            },
+            { 
+                id: 'kokou', 
+                name: '孤高の成果主義社畜', 
+                icon: '004.png',
+                quote: 'さーて、お仕事♪お仕事♪',
+                description: '成果を最優先とする孤高の戦士。周囲との協調よりも実績を重視。',
+                features: '成果主義で高い能力を持つが、コミュニケーションは苦手。'
+            },
+            { 
+                id: 'kokoro', 
+                name: '心優しき社畜', 
+                icon: '005.png',
+                quote: 'みんな!病院よ!',
+                description: '仲間思いで協調性が高い。チームワークを大切にする。',
+                features: '優しさとコミュニケーション能力が武器だが、自分を犠牲にしがち。'
+            },
+            { 
+                id: 'seijitsu', 
+                name: '誠実な観察社員', 
+                icon: '006.png',
+                quote: 'うえーん、もう疲れたよ',
+                description: '誠実さと観察力が武器。周囲をよく見て、適切な判断をする。',
+                features: '安定した知識とコミュニケーション能力で、チームを支える。'
+            },
+            { 
+                id: 'kyousou', 
+                name: '共創リーダー社員', 
+                icon: '007.png',
+                quote: 'ぼく、リーダー。お仕事命。',
+                description: 'リーダーシップ抜群。チーム全体の力を引き出す。',
+                features: '高いコミュニケーション能力で、チームを導く力に長けている。'
+            },
+            { 
+                id: 'mypace', 
+                name: 'マイペース社員', 
+                icon: '008.png',
+                quote: '僕に構わないでくれ。',
+                description: '自分のペースを崩さない。プレッシャーに惑わされない。',
+                features: 'ストレスに強く、自分のリズムを保つことで着実に成果を出す。'
+            },
+            { 
+                id: 'yurufuwa', 
+                name: 'ゆるふわ社畜', 
+                icon: '009.png',
+                quote: 'うえーい、やっふー♪',
+                description: '常にリラックス。楽観的で明るい雰囲気を演出。',
+                features: 'コミュニケーション能力が高く、職場を和やかにする。'
+            },
+            { 
+                id: 'kakure', 
+                name: '隠れ疲労社畜', 
+                icon: '010.png',
+                quote: 'さあ、マッサージよ!',
+                description: '疲れを表に出さない。内心は疲弊していても前向き。',
+                features: '知識はあるが、体力面では限界が見え始めている。'
+            },
+            { 
+                id: 'ohitoyoshi', 
+                name: 'お人好し社員', 
+                icon: '011.png',
+                quote: 'うんうん、みんな適当に仕事しようね',
+                description: '誰に対しても親切。頼まれると断れない性格。',
+                features: '高いコミュニケーション能力で周囲から頼られる。'
+            },
+            { 
+                id: 'genjitsu', 
+                name: '現実派社員', 
+                icon: '012.png',
+                quote: '早くカラオケ行きたいわね、早退よ!',
+                description: '現実を冷静に分析。感情よりも事実を重視。',
+                features: 'バランスの取れた能力で、現実的な解決策を提示できる。'
+            },
+            { 
+                id: 'katei', 
+                name: '家庭が大事社員', 
+                icon: '013.png',
+                quote: 'マイハニーのために、早く帰ろう',
+                description: '仕事も大切だが、家庭との両立を重視。',
+                features: 'バランス感覚が良く、無理をしすぎない。'
+            },
+            { 
+                id: 'balancer', 
+                name: 'バランサー社員', 
+                icon: '014.png',
+                quote: 'お仕事も家族も、バランス命だぜ!',
+                description: '全ての能力が均等。万能型だが突出はしない。',
+                features: '全能力が同じレベルで、状況に応じて対応可能。'
+            },
+            { 
+                id: 'seika', 
+                name: '成果最適化社畜', 
+                icon: '015.png',
+                quote: '僕イケメン、成果ボーナス最高!',
+                description: '効率を極める。最小の労力で最大の成果を出す。',
+                features: '高い知識と体力で、効率的に成果を出し続ける。'
+            },
+            { 
+                id: 'jiyujin', 
+                name: '自由人', 
+                icon: '016.png',
+                quote: 'しごと?なにそれ?それよりYoutube見た?',
+                description: '型にはまらない自由な生き方。規則や枠にとらわれない。',
+                features: '高い体力とコミュニケーション能力で、自由に活動できる。'
+            }
+        ];
+
+        // 保有キャラクター情報を取得
+        function getOwnedCharacters() {
+            try {
+                const saveData = localStorage.getItem('shachipoke2_save');
+                if (!saveData) return [];
+                
+                const gameData = JSON.parse(saveData);
+                return gameData.ownedCharacters || [];
+            } catch (error) {
+                console.error('保有キャラクター情報の取得に失敗:', error);
+                return [];
+            }
+        }
+
+        // キャラクターグリッドを生成
+        function renderCharacters() {
+            const grid = document.getElementById('characters-grid');
+            if (!grid) return;
+
+            grid.innerHTML = '';
+            
+            // 保有キャラクター情報を取得
+            const ownedCharacters = getOwnedCharacters();
+
+            CHARACTERS.forEach((character) => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                
+                // キャラクター一覧では全キャラに通常動画を表示
+                const moviePath = CHARACTER_MOVIES[character.id];
+                
+                card.innerHTML = `
+                    <div class="character-icon">
+                        <img src="10_社畜アイコン/${character.icon}" alt="${character.name}" 
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;color:#666;\\'>${character.name.charAt(0)}</div>'">
+                    </div>
+                    <div class="character-name">${character.name}</div>
+                    <div class="character-quote">${character.quote}</div>
+                    <div class="character-description">${character.description}</div>
+                    <div class="character-features-title">特徴</div>
+                    <div class="character-features">${character.features}</div>
+                    ${moviePath ? `<button class="movie-button" onclick="playMovie('${moviePath}')">
+                        <span>🎬</span>ムービー
+                    </button>` : ''}
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // 動画再生関数
+        function playMovie(moviePath) {
+            const popup = document.getElementById('movie-popup');
+            const player = document.getElementById('movie-player');
+            
+            player.src = moviePath;
+            popup.classList.add('active');
+            player.play();
+        }
+
+        // ポップアップを閉じる
+        function closeMoviePopup() {
+            const popup = document.getElementById('movie-popup');
+            const player = document.getElementById('movie-player');
+            
+            player.pause();
+            player.src = '';
+            popup.classList.remove('active');
+        }
+
+        // ページ読み込み時に実行
+        document.addEventListener('DOMContentLoaded', () => {
+            const closeBtn = document.getElementById('movie-popup-close');
+            const popup = document.getElementById('movie-popup');
+            
+            closeBtn.addEventListener('click', closeMoviePopup);
+            popup.addEventListener('click', (e) => {
+                if (e.target === popup) {
+                    closeMoviePopup();
+                }
+            });
+            
+            renderCharacters();
+        });
+    </script>
+</body>
+</html>

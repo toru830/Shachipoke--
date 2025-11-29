@@ -1,0 +1,47 @@
+# Netlifyデプロイで除外するファイル
+
+# 開発・テスト用ファイル
+test.html
+test-simple.html
+simple.html
+minimal.html
+save-data-checker.html
+supabase-auth.html
+auth-callback.html
+
+# SQLファイル（開発用）
+*.sql
+
+# ドキュメント・計画書
+*.md
+!README.md
+
+# Excelファイル（バックアップ用）
+10_社畜アイコン/*.xlsx
+10_社畜アイコン/~$*
+
+# 一時ファイル
+*.log
+*.tmp
+Thumbs.db
+.DS_Store
+
+# 環境設定ファイル
+.env.local
+local-mode.txt
+
+# IDE設定
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+
+
+
+
