@@ -46,22 +46,22 @@ A mobile-first web-based office worker character raising simulation game.
 ## 🎨 Characters
 
 ### Available Characters
-1. **武志** - 真面目な新入社員 (Balanced starter character)
-2. **雪** - クールな先輩社員 (High stress resistance and knowledge)
-3. **健二** - IT系エンジニア (High knowledge, low communication)
-4. **美香** - マーケティング担当 (High communication skills)
-5. **博** - ベテラン技術者 (High stress resistance and knowledge)
-6. **明子** - 研究開発部 (Very high knowledge, low physical)
-7. **聡** - 営業部エース (High communication and physical)
-8. **直美** - 人事部 (Balanced stats)
-9. **亮** - デザイナー (Creative but stress-sensitive)
-10. **結衣** - 企画部 (Good communication and knowledge)
-11. **大樹** - 管理職候補 (Well-rounded leadership stats)
-12. **桜** - 経理部 (High knowledge, low physical)
-13. **健太** - システム管理者 (High knowledge, low communication)
-14. **真理** - データアナリスト (Very high knowledge, low stress resistance)
-15. **太郎** - 現場監督 (High physical strength)
-16. **花** - 品質管理 (High knowledge, low physical)
+1. **生粋の社畜** - ストレス耐性と体力が高い (High stress resistance and physical strength)
+2. **限界突破社畜** - 全能力が高い (All-around high stats)
+3. **無敗の職人社畜** - 知識とストレス耐性に優れる (High knowledge and stress resistance)
+4. **孤高の成果主義社畜** - 成果主義でコミュニケーションは苦手 (Results-oriented, low communication)
+5. **心優しき社畜** - コミュニケーション能力が高い (High communication skills)
+6. **誠実な観察社員** - 知識とコミュニケーションに優れる (High knowledge and communication)
+7. **共創リーダー社員** - 特にコミュニケーション能力が高い (Very high communication, leadership)
+8. **マイペース社員** - バランスの取れた能力 (Balanced stats)
+9. **ゆるふわ社畜** - コミュニケーション能力が高いが他の能力は控えめ (High communication, lower other stats)
+10. **隠れ疲労社畜** - ストレス耐性が低いが知識は高い (Low stress resistance, high knowledge)
+11. **お人好し社員** - コミュニケーション能力が高い (High communication skills)
+12. **現実派社員** - バランスの取れた能力 (Balanced realistic stats)
+13. **家庭が大事社員** - コミュニケーション能力が高い (High communication, family-oriented)
+14. **バランサー社員** - すべての能力がバランス良く高い (Well-balanced high stats)
+15. **成果最適化社畜** - 成果最適化に特化し全能力が高い (Optimized for results, all high stats)
+16. **自由人** - コミュニケーションと体力に優れる (High communication and physical strength)
 
 ## 🛒 Shop Items
 
