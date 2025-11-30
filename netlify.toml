@@ -32,3 +32,24 @@
   [headers.values]
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://*.supabase.co https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com; font-src 'self' data:;"
 
+# 動画ファイル最適化設定
+[[headers]]
+  for = "/*.mp4"
+  [headers.values]
+    # HTTP Range Requestをサポート（ストリーミング用）
+    Accept-Ranges = "bytes"
+    # キャッシュ設定（1年間キャッシュ）
+    Cache-Control = "public, max-age=31536000, immutable"
+    # 動画のストリーミングを最適化
+    Content-Type = "video/mp4"
+    # 大きなファイルの配信を最適化
+    X-Content-Type-Options = "nosniff"
+
+# 動画ディレクトリの最適化
+[[headers]]
+  for = "/20_movie/**"
+  [headers.values]
+    Accept-Ranges = "bytes"
+    Cache-Control = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
+

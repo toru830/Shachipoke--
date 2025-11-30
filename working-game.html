@@ -9157,6 +9157,7 @@
             video.src = videoPath;
             video.controls = true;
             video.playsInline = true;
+            video.preload = 'metadata'; // メタデータのみ先読み（ストリーミング最適化）
             video.style.cssText = `
                 width: 100%;
                 height: auto;
