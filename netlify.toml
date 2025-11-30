@@ -52,4 +52,16 @@
     Accept-Ranges = "bytes"
     Cache-Control = "public, max-age=31536000, immutable"
     X-Content-Type-Options = "nosniff"
+    # 大きなファイルの配信を最適化
+    Content-Encoding = "identity"
+
+# 動画ファイルのGzip圧縮は無効化（動画は既に圧縮済み）
+[[headers]]
+  for = "/20_movie/**/*.mp4"
+  [headers.values]
+    Content-Type = "video/mp4"
+    Accept-Ranges = "bytes"
+    Cache-Control = "public, max-age=31536000, immutable"
+    # ストリーミング用の最適化
+    Content-Length = ""
 

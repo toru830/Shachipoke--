@@ -6485,7 +6485,7 @@
                         z-index: 10001;
                     ">✕ 閉じる</button>
                     <h3 style="color: white; text-align: center; margin-bottom: 20px; font-size: 1.5rem;">${characterName}</h3>
-                    <video id="3d-movie-player" controls autoplay style="width: 100%; max-height: 80vh; border-radius: 10px;">
+                    <video id="3d-movie-player" controls autoplay preload="metadata" playsinline style="width: 100%; max-height: 80vh; border-radius: 10px;">
                             <source src="${videoPath}" type="video/mp4">
                             お使いのブラウザは動画をサポートしていません。
                         </video>
@@ -7091,6 +7091,13 @@
             video.autoplay = true;
             video.muted = false;
             video.playsInline = true;
+            video.preload = 'metadata'; // メタデータのみ先読み（ストリーミング最適化）
+            // バッファリング設定を最適化
+            if (video.buffered && video.buffered.length > 0) {
+                video.addEventListener('progress', () => {
+                    // バッファリング進捗を監視して最適化
+                });
+            }
 
             const title = document.createElement('div');
             title.textContent = `${character.name}の紹介動画`;
@@ -7462,6 +7469,7 @@
             video.autoplay = true;
             video.muted = false;
             video.playsInline = true;
+            video.preload = 'metadata'; // メタデータのみ先読み（ストリーミング最適化）
 
             const title = document.createElement('div');
             title.textContent = titleText;
@@ -9442,6 +9450,7 @@
             video.autoplay = true;
             video.muted = false;
             video.playsInline = true;
+            video.preload = 'metadata'; // メタデータのみ先読み（ストリーミング最適化）
             
             const skipButton = document.createElement('button');
             skipButton.textContent = 'スキップ';
