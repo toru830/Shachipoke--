@@ -2415,25 +2415,6 @@
             }
         }
         
-        /* モバイル向けパフォーマンス最適化: アニメーションを無効化または簡略化 */
-        @media (max-width: 768px) {
-            /* スマホでは重いアニメーションを無効化 */
-            .character-roam {
-                animation: none !important;
-            }
-            .character-sway {
-                animation: none !important;
-            }
-            .rainbow-title {
-                animation: none !important;
-                background: linear-gradient(90deg, #FF6B6B, #FFE66D, #98D982) !important;
-            }
-            /* 動画の遅延読み込みを推奨 */
-            video {
-                loading: lazy;
-            }
-        }
-        
         /* モバイル対応 (480px以下) */
         @media (max-width: 480px) {
             .screen {
@@ -3542,30 +3523,6 @@
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         console.log('デバイス検出:', isMobile ? 'スマホ' : 'PC');
         console.log('User Agent:', navigator.userAgent);
-        
-        // モバイル向けパフォーマンス最適化: 重いアニメーションを無効化
-        if (isMobile) {
-            console.log('モバイル検出: パフォーマンス最適化を適用します');
-            // CSSクラスを追加してアニメーションを無効化
-            document.documentElement.classList.add('mobile-optimized');
-            // メタタグでGPU加速を有効化
-            const style = document.createElement('style');
-            style.textContent = `
-                .mobile-optimized .character-roam,
-                .mobile-optimized .character-sway {
-                    animation: none !important;
-                }
-                .mobile-optimized .rainbow-title {
-                    animation: none !important;
-                    background: linear-gradient(90deg, #FF6B6B, #FFE66D, #98D982) !important;
-                }
-                /* モバイルでは動画を遅延読み込み */
-                .mobile-optimized video {
-                    loading: lazy;
-                }
-            `;
-            document.head.appendChild(style);
-        }
         
         initTestModeFromEnv();
         try {
