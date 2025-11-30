@@ -5891,6 +5891,24 @@
                 renderEventCards();
             }
         }
+        
+        // 本番環境ではテストモードセクションを非表示にする
+        function hideTestModeInProduction() {
+            const testModeSection = document.getElementById('test-mode-section');
+            if (!testModeSection) return;
+            
+            // 本番環境の判定: localhost以外は本番環境とみなす
+            const hostname = window.location.hostname;
+            const isProduction = hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.startsWith('192.168.') && !hostname.startsWith('10.') && hostname !== '';
+            
+            if (isProduction) {
+                testModeSection.style.display = 'none';
+                console.log('本番環境のため、テストモードセクションを非表示にしました');
+            } else {
+                testModeSection.style.display = '';
+                console.log('開発環境のため、テストモードセクションを表示します');
+            }
+        }
 
         // キャラクター選択
         function selectCharacter(characterId) {
