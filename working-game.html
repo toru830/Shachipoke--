@@ -3473,15 +3473,36 @@
         }
 
 
-        // Google認証関数（早期定義）- ローカルモードでは無効化
+        // Google認証関数（早期定義）
         async function signInWithGoogle() {
-            // ローカルモードでは認証をスキップして直接ゲーム開始
-            console.log('ローカルモード: 認証をスキップしてゲームを開始します');
-            if (gameState && gameState.selectedCharacter) {
-                showScreen('main-game');
-                updateMainScreen();
-            } else {
-                showScreen('character-selection');
+            if (!supabase) {
+                console.log('Supabase接続なしのため、認証をスキップ');
+                showToast('Supabase接続に問題があります', 'error');
+                return;
+            }
+            
+            try {
+                // SupabaseのデフォルトコールバックURLを使用（Supabaseが自動的に処理）
+                const redirectUrl = window.location.protocol + '//' + window.location.host + '/auth-callback.html';
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: redirectUrl
+                    }
+                });
+                
+                if (error) {
+                    console.error('Google認証エラー:', error);
+                    showToast('認証に失敗しました', 'error');
+                    return;
+                }
+                
+                console.log('Google認証成功:', data);
+                showToast('認証が開始されました', 'success');
+                
+            } catch (error) {
+                console.error('Google認証例外:', error);
+                showToast('認証処理でエラーが発生しました', 'error');
             }
         }
 
@@ -3504,10 +3525,17 @@
         console.log('User Agent:', navigator.userAgent);
         
         initTestModeFromEnv();
-        // Supabaseを無効化し、ローカルモードで動作
-        supabase = null;
-        useLocalMode = true;
-        console.log('ローカルモードで動作します（Supabase無効）');
+        try {
+            // すべてのデバイスでSupabase接続を試行
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabaseクライアント初期化成功');
+            useLocalMode = false;
+        } catch (error) {
+            console.error('Supabaseクライアント初期化エラー:', error);
+            supabase = null;
+            useLocalMode = true;
+            console.log('ローカルモードで動作します');
+        }
         
         // 接続テスト
         if (supabase) {
@@ -12205,13 +12233,26 @@ RLS設定が必要です。以下の手順でSupabase SQL Editorで実行して�
                 addEventListenerWithCleanup(mainCharacterImage, 'click', handleMainCharacterImageClick);
             }
             
-            // ローカルモードで常に動作（認証不要）
-            console.log('ローカルモードでゲーム開始（認証不要）');
-            if (gameState && gameState.selectedCharacter) {
-                showScreen('main-game');
-                updateMainScreen();
+            // 認証状態に応じて画面を表示
+            if (useLocalMode) {
+                console.log('ローカルモードでゲーム開始');
+                if (gameState.selectedCharacter) {
+                    showScreen('main-game');
+                    updateMainScreen();
+                } else {
+                    showScreen('character-selection');
+                }
+            } else if (isAuthenticated) {
+                console.log('認証済みユーザーでゲーム開始');
+                if (gameState.selectedCharacter) {
+                    showScreen('main-game');
+                    updateMainScreen();
+                } else {
+                    showScreen('character-selection');
+                }
             } else {
-                showScreen('character-selection');
+                console.log('未認証状態 - 認証が必要');
+                showScreen('login-required');
             }
             
             console.log('ゲーム初期化完了');
