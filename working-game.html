@@ -2891,7 +2891,7 @@
                     <button class="btn-primary" onclick="showScreen('rank-list')" style="width: 100%; margin-bottom: 10px;">役職一覧を見る</button>
                 </div>
                 
-                <div class="settings-section">
+                <div class="settings-section" id="test-mode-section">
                     <h3>テストモード</h3>
                     <p class="settings-description">完了済み判定を無視し、全イベントを選択可能にします。DB保存を行いません。</p>
                     <div class="save-load-buttons">
@@ -5786,6 +5786,7 @@
                         renderBadges();
                         renderCurrentCharacterMovie();
                         syncTestModeUI();
+                        hideTestModeInProduction();
                         break;
                     case '3d-characters':
                         render3DVideos();
