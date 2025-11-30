@@ -6014,7 +6014,8 @@
             const character = gameState.selectedCharacter;
             const currentCharacterState = getCurrentCharacterState();
             if (!currentCharacterState) {
-                console.error('キャラクター状態を取得できませんでした');
+                console.error('キャラクター状態を取得できませんでした - キャラクター選択画面へリダイレクト');
+                showScreen('character-selection');
                 return;
             }
             const currentIconMode = currentCharacterState.use3DIcon ? '3d' : '2d';
@@ -12235,9 +12236,10 @@ RLS設定が必要です。以下の手順でSupabase SQL Editorで実行して�
             if (isAuthenticated && supabase) {
                 console.log('認証済みユーザーでゲーム開始');
                 if (gameState.selectedCharacter) {
-                    showScreen('main-game');
+                    showScreen('main');
                     updateMainScreen();
                 } else {
+                    console.log('キャラクターが選択されていません - キャラクター選択画面へ');
                     showScreen('character-selection');
                 }
             } else {
