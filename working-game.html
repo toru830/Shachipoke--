@@ -3012,7 +3012,7 @@
         
         // Supabaseクライアント初期化
         let supabase = null;
-        let useLocalMode = false;
+        let useLocalMode = false; // 認証必須のため、常にfalse（ローカルモードは無効化）
         // テストモード（完了制限やグレーアウトを無効化）
         let TEST_MODE = false;
 
@@ -3529,12 +3529,13 @@
             // すべてのデバイスでSupabase接続を試行
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log('Supabaseクライアント初期化成功');
-            useLocalMode = false;
+            useLocalMode = false; // 認証必須なのでローカルモードは無効化
         } catch (error) {
             console.error('Supabaseクライアント初期化エラー:', error);
-            supabase = null;
-            useLocalMode = true;
-            console.log('ローカルモードで動作します');
+            console.error('Supabase接続に失敗しましたが、認証は必須です');
+            // 認証必須のため、useLocalModeはfalseのままにする
+            useLocalMode = false;
+            // supabaseはnullのまま（認証チェック時にエラーハンドリング）
         }
         
         // 接続テスト
@@ -11221,15 +11222,11 @@
         // 初期化
         // 認証関連関数
         async function checkAuthStatus() {
-            if (useLocalMode) {
-                console.log('ローカルモードのため、認証チェックをスキップ');
-                isAuthenticated = false;
-                currentUser = null;
-                return false;
-            }
-            
+            // 認証必須のため、ローカルモードでも認証チェックを実行
             if (!supabase) {
                 console.log('Supabaseクライアントが利用できません');
+                isAuthenticated = false;
+                currentUser = null;
                 return false;
             }
             
@@ -12194,13 +12191,14 @@ RLS設定が必要です。以下の手順でSupabase SQL Editorで実行して�
             
             // 認証状態をチェック
             // ローカルモードでは認証チェックをスキップ
-            // await checkAuthStatus();
-            // await testSupabaseConnection();
-            // updateAuthStatus();
+            // 認証状態をチェック
+            await checkAuthStatus();
             
-            // ローカルモードに設定
-            useLocalMode = true;
-            isAuthenticated = false;
+            // Supabase接続テストを実行
+            await testSupabaseConnection();
+            
+            // 認証状態表示を更新
+            updateAuthStatus();
             
             // 習慣トラッカーデータを読み込み
             loadHabitTrackerData();
@@ -12233,16 +12231,8 @@ RLS設定が必要です。以下の手順でSupabase SQL Editorで実行して�
                 addEventListenerWithCleanup(mainCharacterImage, 'click', handleMainCharacterImageClick);
             }
             
-            // 認証状態に応じて画面を表示
-            if (useLocalMode) {
-                console.log('ローカルモードでゲーム開始');
-                if (gameState.selectedCharacter) {
-                    showScreen('main-game');
-                    updateMainScreen();
-                } else {
-                    showScreen('character-selection');
-                }
-            } else if (isAuthenticated) {
+            // 認証状態に応じて画面を表示（認証必須）
+            if (isAuthenticated && supabase) {
                 console.log('認証済みユーザーでゲーム開始');
                 if (gameState.selectedCharacter) {
                     showScreen('main-game');
@@ -12252,6 +12242,7 @@ RLS設定が必要です。以下の手順でSupabase SQL Editorで実行して�
                 }
             } else {
                 console.log('未認証状態 - 認証が必要');
+                console.log('認証状態:', { isAuthenticated, hasSupabase: !!supabase });
                 showScreen('login-required');
             }
             
